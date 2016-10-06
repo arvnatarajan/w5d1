@@ -60,16 +60,21 @@ class App extends React.Component {
       this.socket.onmessage = (event) => {
         switch(JSON.parse(event.data).type) {
           case "postMessage":
-            this.handleMessage(event)
+            console.log(event);
+            this.handleMessage(event);
+            break;
+          case "postImage":
+            console.log(event);
+            this.handleMessage(event);
             break;
           case "postNotification":
-            this.handleMessage(event)
+            this.handleMessage(event);
             break;
           case "serverUserCount":
-            this.displayUsers(event)
+            this.displayUsers(event);
             break;
           case "colorChoice":
-            this.setColor(event)
+            this.setColor(event);
             break;
           default:
           // show an error in the console if the message type is unknown
@@ -86,6 +91,15 @@ class App extends React.Component {
   sendMessageToServer (content, username) {
     this.socket.send(JSON.stringify({
       type: 'postMessage',
+      username: username,
+      content: content,
+      userColor: this.state.myColor
+    }));
+  }
+
+  sendImageToServer (content, username) {
+    this.socket.send(JSON.stringify({
+      type: 'postImage',
       username: username,
       content: content,
       userColor: this.state.myColor
@@ -119,6 +133,7 @@ class App extends React.Component {
           messages={this.state.messages}
         />
         <ChatBar
+          sendImageToServer={this.sendImageToServer.bind(this)}
           sendMessageToServer={this.sendMessageToServer.bind(this)}
           sendNameToServer={this.sendNameToServer.bind(this)}
           updateAppWithCurrentUser={this.updateAppWithCurrentUser.bind(this)}

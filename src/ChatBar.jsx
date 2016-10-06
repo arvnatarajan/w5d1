@@ -6,9 +6,13 @@ class ChatBar extends React.Component {
   }
 
   handleContentInput (event) {
-    if(event.keyCode === 13) {
+    if(event.keyCode === 13 && (event.target.value.match(/.jpg$/)) || (event.target.value.match(/.png$/))) {
+      this.props.sendImageToServer(event.target.value, this.props.currentUser.name);
+      return event.target.value = '';
+    }
+    if (event.keyCode === 13) {
       this.props.sendMessageToServer(event.target.value, this.props.currentUser.name);
-      event.target.value = '';
+      return event.target.value = '';
     }
   }
 

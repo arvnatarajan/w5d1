@@ -24,7 +24,7 @@ wss.broadcast = function broadcast(data) {
 
 let clients = {};
 let numUsers;
-let colors = ['blue', 'green', 'red', 'grey'];
+let colors = ['black', 'green', 'red', 'grey', 'blue'];
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
 // the ws parameter in the callback.
@@ -35,13 +35,15 @@ wss.on('connection', (ws) => {
   }
 
   console.log('Client connected');
-  console.log(numUsersMessage.numUsers);
+  console.log(`Connected client(s): ${numUsersMessage.numUsers}`);
 
   clients[ws] = ''
 
   wss.broadcast(JSON.stringify(numUsersMessage));
 
-  let colorPicked = Math.floor(Math.random() * 4) + 1
+  let colorPicked = Math.ceil(Math.random() * 4)
+  console.log(`New client given color: ${colors[colorPicked]}`);
+
   ws.send(JSON.stringify({
     type: 'colorChoice',
     color: colors[colorPicked]
@@ -51,7 +53,10 @@ wss.on('connection', (ws) => {
     let userMessage = JSON.parse(message);
     switch(userMessage.type) {
       case "postMessage":
-        console.log(`User ${userMessage.username} said ${userMessage.content}`);
+        console.log(`User ${userMessage.username} posted message: ${userMessage.content}`);
+        break;
+      case "postImage":
+        console.log(`User ${userMessage.username} posted image: ${userMessage.content}`);
         break;
       case "postNotification":
         clients[ws] = userMessage.username;
@@ -62,7 +67,6 @@ wss.on('connection', (ws) => {
     }
 
     userMessage.id = uuid.v4();
-    console.log(userMessage);
     wss.broadcast(JSON.stringify(userMessage));
   });
 
