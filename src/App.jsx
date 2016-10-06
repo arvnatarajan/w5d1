@@ -2,51 +2,109 @@ import React, {Component} from 'react';
 import MessageList from './MessageList.jsx';
 import ChatBar from './ChatBar.jsx';
 
-let data = {
-  currentUser: {name: "Steve"}, // optional. if currentUser is not defined, it means the user is Anonymous
-  messages: []
-};
-
-
 class App extends React.Component {
   constructor() {
     super()
     this.state = {
-      data: data
+      currentUser: {name: 'Anonymous'},
+      messages: [],
+      numUsers: 0,
+      myColor: 'black'
     }
+  }
+
+  handleMessage(event) {
+    const data = JSON.parse(event.data);
+    if(data.userColor) {}
+    let messages = [
+      ...this.state.messages,
+      {
+        type: data.type,
+        id: data.id,
+        username: data.username,
+        content: data.content,
+        userColor: data.userColor
+      }
+    ];
+    this.setState({messages})
+  }
+
+  displayUsers(event) {
+    const data = JSON.parse(event.data).numUsers;
+    this.setState({
+      numUsers: data
+    });
+  }
+
+  setColor(event) {
+    const color = JSON.parse(event.data).color;
+    console.log(color);
+    this.setState({
+      myColor: color
+    })
   }
 
   componentDidMount () {
     console.log("componentDidMount <App />");
-
     this.socket = new WebSocket("ws://localhost:4000", ["JSON"]);
-    console.log('Connected to server');
 
-    setTimeout(() => {
-      console.log("Simulating incoming message");
-      // Add a new message to the list of messages in the data store
-      this.state.data.messages.push({id: 3, username: "Michelle", content: "Hello there!"});
-      // Update the state of the app component. This will call render()
-      this.setState({data: this.state.data})
-    }, 3000);
+    this.socket.onopen = (event) => {
+      console.log('Connected to server');
+
+      this.socket.send(JSON.stringify({
+        type: 'postNotification',
+        username: this.state.currentUser.name,
+        content: `${this.state.currentUser.name} has joined the session`
+      }));
+
+      this.socket.onmessage = (event) => {
+        switch(JSON.parse(event.data).type) {
+          case "postMessage":
+            this.handleMessage(event)
+            break;
+          case "postNotification":
+            this.handleMessage(event)
+            break;
+          case "serverUserCount":
+            this.displayUsers(event)
+            break;
+          case "colorChoice":
+            this.setColor(event)
+            break;
+          default:
+          // show an error in the console if the message type is unknown
+          throw new Error("Unknown event type " + JSON.parse(event.data).type);
+        }
+      }
+    }
+
+    this.socket.onclose = (event) => {
+      console.log('Disconnected from server');
+    }
   }
 
-  updateAppWithMessage (content, newID, username) {
+  sendMessageToServer (content, username) {
     this.socket.send(JSON.stringify({
+      type: 'postMessage',
       username: username,
-      content: content
+      content: content,
+      userColor: this.state.myColor
     }));
+  }
 
-    data.messages.push({
-      id: newID,
+  sendNameToServer (username) {
+    this.socket.send(JSON.stringify({
+      type: 'postNotification',
       username: username,
-      content: content
-    });
+      content: `${this.state.currentUser.name} has changed their name to ${username}`
+    }));
+    this.updateAppWithCurrentUser(username)
+  }
 
-
+  updateAppWithCurrentUser(username) {
     this.setState({
-        data: data
-        })
+      currentUser: {name: username}
+    });
   }
 
   render () {
@@ -55,10 +113,16 @@ class App extends React.Component {
       <div className="wrapper">
         <nav>
           <h1>speakeasy</h1>
+          <p>{this.state.numUsers} users online</p>
         </nav>
-        <MessageList messages={this.state.data.messages} />
+        <MessageList
+          messages={this.state.messages}
+        />
         <ChatBar
-          updateAppWithMessage={this.updateAppWithMessage.bind(this)}  currentUser={this.state.data.currentUser}
+          sendMessageToServer={this.sendMessageToServer.bind(this)}
+          sendNameToServer={this.sendNameToServer.bind(this)}
+          updateAppWithCurrentUser={this.updateAppWithCurrentUser.bind(this)}
+          currentUser={this.state.currentUser}
         />
       </div>
     )

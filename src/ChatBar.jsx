@@ -1,19 +1,20 @@
 import React, {Component} from 'react';
 
-let newID = 4;
-let username = 'Anony';
-
 class ChatBar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
   }
 
   handleContentInput (event) {
     if(event.keyCode === 13) {
-      this.props.updateAppWithMessage(event.target.value, newID, this.props.currentUser.name);
-      newID++;
+      this.props.sendMessageToServer(event.target.value, this.props.currentUser.name);
       event.target.value = '';
+    }
+  }
+
+  handleNameChange (event) {
+    if(event.keyCode === 13) {
+      this.props.sendNameToServer(event.target.value);
     }
   }
 
@@ -24,8 +25,8 @@ class ChatBar extends React.Component {
         <input
           id="username"
           type="text"
-          placeholder="Your Name (Optional)"
-          value={this.props.currentUser.name}
+          placeholder="Type your name and hit ENTER"
+          onKeyUp={this.handleNameChange.bind(this)}
         />
         <input
           id="new-message"

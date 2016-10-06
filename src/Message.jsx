@@ -1,15 +1,14 @@
-import React, {Component} from 'react';
+import React, {PropTypes, Component} from 'react';
 
-class Message extends React.Component {
-  render () {
-    console.log('Rendering <Message />');
-    return (
-      <div className="message">
-        <span className="username">{this.props.message.username}</span>
-        <span className="content">{this.props.message.content}</span>
-      </div>
-    )
-  }
+const Message = (props) => {
+  console.log('Rendering <Message />');
+  console.log(props.color);
+  return (
+    <div className="message">
+      <span className="username" style={{color: props.message.userColor}}>{props.message.username}</span>
+      <span className="content">{props.message.content}</span>
+    </div>
+  )
 }
 
 export default Message;
