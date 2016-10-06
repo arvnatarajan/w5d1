@@ -113,7 +113,7 @@ class App extends React.Component {
       <div className="wrapper">
         <nav>
           <h1>speakeasy</h1>
-          <p>{this.state.numUsers} users online</p>
+          <p>{this.state.numUsers} user(s) online</p>
         </nav>
         <MessageList
           messages={this.state.messages}

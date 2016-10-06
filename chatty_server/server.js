@@ -62,7 +62,7 @@ wss.on('connection', (ws) => {
     }
 
     userMessage.id = uuid.v4();
-    console.log(userMessage)
+    console.log(userMessage);
     wss.broadcast(JSON.stringify(userMessage));
   });
 
