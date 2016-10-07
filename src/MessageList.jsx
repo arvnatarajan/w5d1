@@ -9,30 +9,18 @@ class MessageList extends Component {
     return this.props.messages.map((message) => {
       switch(message.type) {
         case 'postMessage':
-          return this.renderUserMessage(message);
+          return <Message key={message.id} message={message}/>
           break;
         case 'postImage':
-          return this.renderUserImage(message);
+          return <MessageImage key={message.id} message={message}/>
           break;
         case 'postNotification':
-          return this.renderNotification(message)
+          return <Notification key={message.id} message={message}/>
           break;
         default:
           console.log('uh oh... no message type received!');
       }
     });
-  }
-
-  renderUserMessage (message) {
-    return <Message key={message.id} message={message}/>
-  }
-
-  renderUserImage (message) {
-    return <MessageImage key={message.id} message={message}/>
-  }
-
-  renderNotification (message) {
-    return <Notification key={message.id} message={message}/>
   }
 
   render () {

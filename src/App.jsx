@@ -60,13 +60,7 @@ class App extends React.Component {
       this.socket.onmessage = (event) => {
         switch(JSON.parse(event.data).type) {
           case "postMessage":
-            console.log(event);
-            this.handleMessage(event);
-            break;
           case "postImage":
-            console.log(event);
-            this.handleMessage(event);
-            break;
           case "postNotification":
             this.handleMessage(event);
             break;
